@@ -43,6 +43,9 @@ void help(const Arguments &args)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
+#ifdef Q_OS_WIN
+	QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 850"));
+#endif
 
 	Arguments args;
 	quint32 lzsSize;
