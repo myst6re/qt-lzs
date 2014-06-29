@@ -7,6 +7,7 @@ Usage
 -----
 
     lzs [-dhq] file
+    unlzs [-hq] file
     Options
         -d --decompress --uncompress
             Decompress.
@@ -22,3 +23,8 @@ Usage
     
         -q --quiet
             Suppress all outputs
+
+Compilation
+-----------
+
+TODO
