@@ -32,3 +32,5 @@ HEADERS += \
     lzs/LZS.h \
     Arguments.h \
     lzs/LZSObserver.h
+
+OTHER_FILES += README.md
