@@ -27,4 +27,12 @@ Usage
 Compilation
 -----------
 
-TODO
+qt-lzs is a Qt project, use these commands to build it:
+
+    qmake
+    make
+
+To compile the unlzs executable, run:
+
+    qmake "CONFIG+=configUNLZS"
+    make

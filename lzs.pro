@@ -8,9 +8,7 @@ QT       += core
 
 QT       -= gui
 
-configLZS {
-    TARGET = lzs
-}
+TARGET = lzs
 
 configUNLZS {
     TARGET = unlzs
