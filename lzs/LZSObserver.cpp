@@ -21,16 +21,24 @@ LZSObserver::LZSObserver()
 {
 }
 
-LZSObserverStdOut::LZSObserverStdOut() :
-    LZSObserver()
+LZSObserverPercent::LZSObserverPercent()
 {
 }
 
-void LZSObserverStdOut::setValue(int value)
+void LZSObserverPercent::setValue(int value)
 {
 	int percent = value * 100.0 / (double)maximum();
 	if (percent != _lastPercent) {
-		printf("[%d%%]\r", percent);
 		_lastPercent = percent;
+		setPercent(percent);
 	}
+}
+
+LZSObserverStdOut::LZSObserverStdOut()
+{
+}
+
+void LZSObserverStdOut::setPercent(int percent)
+{
+	printf("[%d%%]\r", percent);
 }

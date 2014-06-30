@@ -35,13 +35,21 @@ private:
 	int _maximum;
 };
 
-class LZSObserverStdOut : public LZSObserver
+class LZSObserverPercent : public LZSObserver
+{
+public:
+	LZSObserverPercent();
+	void setValue(int value);
+	virtual void setPercent(int percent)=0;
+private:
+	int _lastPercent;
+};
+
+class LZSObserverStdOut : public LZSObserverPercent
 {
 public:
 	LZSObserverStdOut();
-	virtual void setValue(int value);
-private:
-	int _lastPercent;
+	virtual void setPercent(int percent);
 };
 
 #endif // LZSOBSERVER_H
