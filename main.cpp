@@ -66,21 +66,41 @@ int main(int argc, char *argv[])
 
 			QFile dest(args.destPath());
 			if (dest.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-				if (args.decompress()) {
-					if (args.hasHeader() && f.read((char *)&lzsSize, 4) != 4) {
-						qWarning() << "Error when reading file.";
-					} else {
-						if (args.hasHeader() && args.validateHeader() && lzsSize != f.size() - 4) {
-							qWarning() << "Invalid LZS header.";
-						} else {
-							dest.write(LZS::decompressAll(f.readAll(), observer));
-						}
-					}
+				QByteArray data;
+
+				if (args.offset() > 0) {
+					dest.seek(args.offset());
+				}
+
+				if (args.size() == 0) {
+					qWarning() << "Please specify a size > 0.";
 				} else {
-					const QByteArray &lzsed = LZS::compress(f.readAll(), observer);
-					lzsSize = lzsed.size();
-					dest.write((char *)&lzsSize, 4);
-					dest.write(lzsed);
+					if (args.decompress()) {
+						if (args.hasHeader() && f.read((char *)&lzsSize, 4) != 4) {
+							qWarning() << "Error when reading file.";
+						} else {
+							if (args.hasHeader() && args.validateHeader() && lzsSize != f.size() - 4) {
+								qWarning() << "Invalid LZS header.";
+							} else {
+								if (args.size() < 0) {
+									data = f.readAll();
+								} else {
+									data = f.read(args.size());
+								}
+								dest.write(LZS::decompressAll(data, observer));
+							}
+						}
+					} else {
+						if (args.size() < 0) {
+							data = f.readAll();
+						} else {
+							data = f.read(args.size());
+						}
+						const QByteArray &lzsed = LZS::compress(data, observer);
+						lzsSize = lzsed.size();
+						dest.write((char *)&lzsSize, 4);
+						dest.write(lzsed);
+					}
 				}
 
 				dest.close();

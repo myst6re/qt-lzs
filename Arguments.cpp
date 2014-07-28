@@ -19,7 +19,8 @@
 #include <QStringList>
 
 Arguments::Arguments() :
-	_decompress(
+    _offset(0), _size(-1),
+    _decompress(
 #ifndef UNLZS
 		false
 #else
@@ -42,6 +43,16 @@ QString Arguments::destPath() const
 		return _path + ".dec";
 	}
 	return _path + ".lzs";
+}
+
+qint64 Arguments::offset() const
+{
+	return _offset;
+}
+
+qint64 Arguments::size() const
+{
+	return _size;
 }
 
 bool Arguments::decompress() const
@@ -74,20 +85,23 @@ void Arguments::parse()
 	QStringList args = qApp->arguments();
 	args.removeFirst(); // Application path
 
-#ifndef UNLZS
-	_decompress = false;
-#else
-	_decompress = true;
-#endif
-	_help = _quiet = false;
+	while (!args.isEmpty()) {
+		const QString &arg = args.takeFirst();
+		bool ok;
 
-	foreach (const QString &arg, args) {
 		if (arg == "-d" || arg == "--decompress" || arg == "--uncompress") {
 			_decompress = true;
 		} else if (arg == "-h" || arg == "--help") {
 			_help = true;
 		} else if (arg == "-q" || arg == "--quiet") {
 			_quiet = true;
+		} else if (arg == "-p" || arg == "--offset") {
+			_offset = args.takeFirst().toInt();
+		} else if (arg == "-s" || arg == "--size") {
+			_size = args.takeFirst().toInt(&ok);
+			if(!ok) {
+				_size = -1;
+			}
 		} else if (arg == "--no-header-test") {
 			_validateHeader = false;
 		} else if (arg == "--no-header") {
@@ -112,6 +126,8 @@ QMap<QString, QString> Arguments::commands() const
 	options["-h --help"] = "Show this help and quit.";
 	options["--no-header"] = "The input file starts directly with compressed data.";
 	options["--no-header-test"] = "Do not test the header integrity.";
+	options["-p --offset"] = "Start offset in the source file.";
+	options["-s --size"] = "Read at most size bytes (excluding lzs header) from the source file.";
 	options["-q --quiet"] = "Suppress all outputs";
 
 	return options;

@@ -26,6 +26,8 @@ public:
 	Arguments();
 	const QString &path() const;
 	QString destPath() const;
+	qint64 offset() const;
+	qint64 size() const;
 	bool decompress() const;
 	bool help() const;
 	bool quiet() const;
@@ -35,6 +37,7 @@ public:
 private:
 	void parse();
 	QString _path;
+	qint64 _offset, _size;
 	bool _decompress, _help, _quiet,
 		_validateHeader, _hasHeader;
 
