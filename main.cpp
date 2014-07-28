@@ -43,8 +43,10 @@ int main(int argc, char *argv[])
 		if (f.open(QIODevice::ReadOnly)) {
 
 			QFile dest(args.destPath());
+			bool destExistsBefore = dest.exists();
 			if (dest.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 				QByteArray data;
+				bool needToRemoveDest = false;
 
 				if (args.offset() > 0) {
 					dest.seek(args.offset());
@@ -52,13 +54,16 @@ int main(int argc, char *argv[])
 
 				if (args.size() == 0) {
 					qWarning() << "Please specify a size > 0.";
+					needToRemoveDest = true;
 				} else {
 					if (args.decompress()) {
 						if (args.hasHeader() && f.read((char *)&lzsSize, 4) != 4) {
 							qWarning() << "Error when reading file.";
+							needToRemoveDest = true;
 						} else {
 							if (args.hasHeader() && args.validateHeader() && lzsSize != f.size() - 4) {
 								qWarning() << "Invalid LZS header.";
+								needToRemoveDest = true;
 							} else {
 								if (args.size() < 0) {
 									data = f.readAll();
@@ -79,6 +84,10 @@ int main(int argc, char *argv[])
 						dest.write((char *)&lzsSize, 4);
 						dest.write(lzsed);
 					}
+				}
+
+				if (!destExistsBefore && needToRemoveDest) {
+					dest.remove();
 				}
 
 				dest.close();
