@@ -15,6 +15,9 @@ Usage
         -h --help
             Show this help and quit.
     
+        -p --offset
+            Start offset (=position) in the source file.
+    
         --no-header
             The input file starts directly with compressed data.
     
@@ -23,6 +26,9 @@ Usage
     
         -q --quiet
             Suppress all outputs
+    
+        -s --size
+            Read at most size bytes (excluding lzs header) from the source file.
 
 Compilation
 -----------
