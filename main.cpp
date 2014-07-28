@@ -18,28 +18,6 @@
 #include "Arguments.h"
 #include "lzs/LZS.h"
 
-void showOptions(const QMap<QString, QString> &options)
-{
-	QMapIterator<QString, QString> it(options);
-	while (it.hasNext()) {
-		it.next();
-
-		printf("\t%s\n", qPrintable(it.key()));
-		printf("\t\t%s\n\n", qPrintable(it.value()));
-	}
-}
-
-void help(const Arguments &args)
-{
-#ifdef UNLZS
-	printf("unlzs file\n");
-#else
-	printf("lzs [-d] file\n");
-#endif
-	printf("Options\n");
-	showOptions(args.commands());
-}
-
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
@@ -59,7 +37,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (args.help() || args.path().isEmpty()) {
-		help(args);
+		args.showHelp();
 	} else {
 		QFile f(args.path());
 		if (f.open(QIODevice::ReadOnly)) {

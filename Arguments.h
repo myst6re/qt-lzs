@@ -24,6 +24,7 @@ class Arguments
 {
 public:
 	Arguments();
+	void showHelp(int exitCode = 0);
 	const QString &path() const;
 	QString destPath() const;
 	qint64 offset() const;

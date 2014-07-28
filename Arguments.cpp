@@ -17,6 +17,7 @@
 #include "Arguments.h"
 #include <QCoreApplication>
 #include <QStringList>
+#include <QTextStream>
 
 Arguments::Arguments() :
     _offset(0), _size(-1),
@@ -131,4 +132,27 @@ QMap<QString, QString> Arguments::commands() const
 	options["-q --quiet"] = "Suppress all outputs";
 
 	return options;
+}
+
+void Arguments::showHelp(int exitCode)
+{
+	QTextStream out(stdout, QIODevice::WriteOnly);
+#ifdef UNLZS
+	out << "unlzs file\n";
+#else
+	out << "lzs [-d] file\n";
+#endif
+	out << "Options\n";
+
+	QMapIterator<QString, QString> it(commands());
+	while (it.hasNext()) {
+		it.next();
+
+		out << "\t" << qPrintable(it.key()) << "\n";
+		out << "\t" << "\t" << qPrintable(it.value()) << "\n";
+	}
+
+	out.flush();
+
+	::exit(exitCode);
 }
