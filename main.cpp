@@ -36,68 +36,70 @@ int main(int argc, char *argv[])
 		observer = &stdObserver;
 	}
 
-	if (args.help() || args.path().isEmpty()) {
+	if (args.help() || args.paths().isEmpty()) {
 		args.showHelp();
 	} else {
-		QFile f(args.path());
-		if (f.open(QIODevice::ReadOnly)) {
+		foreach (const QString &path, args.paths()) {
+			QFile f(path);
+			if (f.open(QIODevice::ReadOnly)) {
 
-			QFile dest(args.destPath());
-			bool destExistsBefore = dest.exists();
-			if (dest.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-				QByteArray data;
-				bool needToRemoveDest = false;
+				QFile dest(args.destination(path));
+				bool destExistsBefore = dest.exists();
+				if (dest.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+					QByteArray data;
+					bool needToRemoveDest = false;
 
-				if (args.offset() > 0) {
-					dest.seek(args.offset());
-				}
+					if (args.offset() > 0) {
+						dest.seek(args.offset());
+					}
 
-				if (args.size() == 0) {
-					qWarning() << "Please specify a size > 0.";
-					needToRemoveDest = true;
-				} else {
-					if (args.decompress()) {
-						if (args.hasHeader() && f.read((char *)&lzsSize, 4) != 4) {
-							qWarning() << "Error when reading file.";
-							needToRemoveDest = true;
-						} else {
-							if (args.hasHeader() && args.validateHeader() && lzsSize != f.size() - 4) {
-								qWarning() << "Invalid LZS header.";
+					if (args.size() == 0) {
+						qWarning() << "Please specify a size > 0.";
+						needToRemoveDest = true;
+					} else {
+						if (args.decompress()) {
+							if (args.hasHeader() && f.read((char *)&lzsSize, 4) != 4) {
+								qWarning() << "Error when reading file.";
 								needToRemoveDest = true;
 							} else {
-								if (args.size() < 0) {
-									data = f.readAll();
+								if (args.hasHeader() && args.validateHeader() && lzsSize != f.size() - 4) {
+									qWarning() << "Invalid LZS header.";
+									needToRemoveDest = true;
 								} else {
-									data = f.read(args.size());
+									if (args.size() < 0) {
+										data = f.readAll();
+									} else {
+										data = f.read(args.size());
+									}
+									dest.write(LZS::decompressAll(data, observer));
 								}
-								dest.write(LZS::decompressAll(data, observer));
 							}
-						}
-					} else {
-						if (args.size() < 0) {
-							data = f.readAll();
 						} else {
-							data = f.read(args.size());
+							if (args.size() < 0) {
+								data = f.readAll();
+							} else {
+								data = f.read(args.size());
+							}
+							const QByteArray &lzsed = LZS::compress(data, observer);
+							lzsSize = lzsed.size();
+							dest.write((char *)&lzsSize, 4);
+							dest.write(lzsed);
 						}
-						const QByteArray &lzsed = LZS::compress(data, observer);
-						lzsSize = lzsed.size();
-						dest.write((char *)&lzsSize, 4);
-						dest.write(lzsed);
 					}
+
+					if (!destExistsBefore && needToRemoveDest) {
+						dest.remove();
+					}
+
+					dest.close();
+				} else {
+					qWarning() << "Error opening destination file." << dest.errorString();
 				}
 
-				if (!destExistsBefore && needToRemoveDest) {
-					dest.remove();
-				}
-
-				dest.close();
+				f.close();
 			} else {
-				qWarning() << "Error opening destination file." << dest.errorString();
+				qWarning() << "Error opening source file." << f.errorString();
 			}
-
-			f.close();
-		} else {
-			qWarning() << "Error opening source file." << f.errorString();
 		}
 	}
 

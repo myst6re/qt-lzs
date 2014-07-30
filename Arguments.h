@@ -17,7 +17,7 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
-#include <QString>
+#include <QStringList>
 #include <QMap>
 
 class Arguments
@@ -25,8 +25,8 @@ class Arguments
 public:
 	Arguments();
 	void showHelp(int exitCode = 0);
-	const QString &path() const;
-	QString destPath() const;
+	const QStringList &paths() const;
+	QString destination(const QString &path) const;
 	qint64 offset() const;
 	qint64 size() const;
 	bool decompress() const;
@@ -37,7 +37,9 @@ public:
 	QMap<QString, QString> commands() const;
 private:
 	void parse();
-	QString _path;
+	void wilcardParse();
+	static QStringList searchFiles(const QString &path);
+	QStringList _paths;
 	qint64 _offset, _size;
 	bool _decompress, _help, _quiet,
 		_validateHeader, _hasHeader;

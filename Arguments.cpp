@@ -16,7 +16,7 @@
  ****************************************************************************/
 #include "Arguments.h"
 #include <QCoreApplication>
-#include <QStringList>
+#include <QDir>
 #include <QTextStream>
 
 Arguments::Arguments() :
@@ -33,17 +33,17 @@ Arguments::Arguments() :
 	parse();
 }
 
-const QString &Arguments::path() const
+const QStringList &Arguments::paths() const
 {
-	return _path;
+	return _paths;
 }
 
-QString Arguments::destPath() const
+QString Arguments::destination(const QString &path) const
 {
 	if(_decompress) {
-		return _path + ".dec";
+		return path + ".dec";
 	}
-	return _path + ".lzs";
+	return path + ".lzs";
 }
 
 qint64 Arguments::offset() const
@@ -108,13 +108,15 @@ void Arguments::parse()
 		} else if (arg == "--no-header") {
 			_hasHeader = false;
 		} else {
-			_path = arg;
+			_paths << arg;
 		}
 	}
 
 	if (!_hasHeader && _validateHeader) {
 		_validateHeader = false;
 	}
+
+	wilcardParse();
 }
 
 QMap<QString, QString> Arguments::commands() const
@@ -155,4 +157,42 @@ void Arguments::showHelp(int exitCode)
 	out.flush();
 
 	::exit(exitCode);
+}
+
+QStringList Arguments::searchFiles(const QString &path)
+{
+	int index = path.lastIndexOf('/');
+	QString dirname, filename;
+
+	if (index > 0) {
+		dirname = path.left(index);
+		filename = path.mid(index + 1);
+	} else {
+		filename = path;
+	}
+
+	QDir dir(dirname);
+	QStringList entryList = dir.entryList(QStringList(filename), QDir::Files);
+	int i=0;
+	foreach (const QString &entry, entryList) {
+		entryList.replace(i++, dir.filePath(entry));
+	}
+	return entryList;
+}
+
+void Arguments::wilcardParse()
+{
+	QStringList paths;
+
+	foreach (const QString &path, _paths) {
+		if (path.contains('*') || path.contains('?')) {
+			paths << searchFiles(QDir::fromNativeSeparators(path));
+		} else {
+			paths << QDir::fromNativeSeparators(path);
+		}
+	}
+
+	if (!paths.isEmpty()) {
+		_paths = paths;
+	}
 }
