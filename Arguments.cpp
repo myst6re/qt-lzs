@@ -40,10 +40,19 @@ const QStringList &Arguments::paths() const
 
 QString Arguments::destination(const QString &path) const
 {
-	if(_decompress) {
-		return path + ".dec";
+	QString destPath,
+	        sourceFilename = path.mid(path.lastIndexOf('/') + 1);
+
+	if (!_directory.isEmpty()) {
+		destPath = QString("%1/%2").arg(_directory, sourceFilename);
+	} else {
+		destPath = sourceFilename;
 	}
-	return path + ".lzs";
+
+	if(_decompress) {
+		return destPath + ".dec";
+	}
+	return destPath + ".lzs";
 }
 
 qint64 Arguments::offset() const
@@ -140,9 +149,9 @@ void Arguments::showHelp(int exitCode)
 {
 	QTextStream out(stdout, QIODevice::WriteOnly);
 #ifdef UNLZS
-	out << "unlzs file\n";
+	out << "unlzs [files...] [directory]\n";
 #else
-	out << "lzs [-d] file\n";
+	out << "lzs [-d] [files...] [directory]\n";
 #endif
 	out << "Options\n";
 
@@ -193,6 +202,11 @@ void Arguments::wilcardParse()
 	}
 
 	if (!paths.isEmpty()) {
+		// Output directory
+		if (QDir(paths.last()).exists()) {
+			_directory = paths.takeLast();
+		}
+
 		_paths = paths;
 	}
 }

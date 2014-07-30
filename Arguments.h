@@ -40,6 +40,7 @@ private:
 	void wilcardParse();
 	static QStringList searchFiles(const QString &path);
 	QStringList _paths;
+	QString _directory;
 	qint64 _offset, _size;
 	bool _decompress, _help, _quiet,
 		_validateHeader, _hasHeader;
