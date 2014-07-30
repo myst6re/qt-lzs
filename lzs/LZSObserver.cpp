@@ -40,5 +40,5 @@ LZSObserverStdOut::LZSObserverStdOut()
 
 void LZSObserverStdOut::setPercent(int percent)
 {
-	printf("[%d%%]\r", percent);
+	printf("[%d%%] %s\r", percent, qPrintable(_filename));
 }

@@ -17,6 +17,8 @@
 #ifndef LZSOBSERVER_H
 #define LZSOBSERVER_H
 
+#include <QString>
+
 class LZSObserver
 {
 public:
@@ -49,7 +51,12 @@ class LZSObserverStdOut : public LZSObserverPercent
 {
 public:
 	LZSObserverStdOut();
+	inline void setFilename(const QString &filename) {
+		_filename = filename;
+	}
 	virtual void setPercent(int percent);
+private:
+	QString _filename;
 };
 
 #endif // LZSOBSERVER_H

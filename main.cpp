@@ -39,7 +39,14 @@ int main(int argc, char *argv[])
 	if (args.help() || args.paths().isEmpty()) {
 		args.showHelp();
 	} else {
+		bool hasMultipleFiles = args.paths().count() > 1;
+
 		foreach (const QString &path, args.paths()) {
+
+			if (hasMultipleFiles) {
+				stdObserver.setFilename(QDir::toNativeSeparators(path));
+			}
+
 			QFile f(path);
 			if (f.open(QIODevice::ReadOnly)) {
 
@@ -59,11 +66,11 @@ int main(int argc, char *argv[])
 					} else {
 						if (args.decompress()) {
 							if (args.hasHeader() && f.read((char *)&lzsSize, 4) != 4) {
-								qWarning() << "Error when reading file.";
+								qWarning() << "Error when reading file." << QDir::toNativeSeparators(path);
 								needToRemoveDest = true;
 							} else {
 								if (args.hasHeader() && args.validateHeader() && lzsSize != f.size() - 4) {
-									qWarning() << "Invalid LZS header.";
+									qWarning() << "Invalid LZS header." << QDir::toNativeSeparators(path);
 									needToRemoveDest = true;
 								} else {
 									if (args.size() < 0) {
@@ -98,7 +105,11 @@ int main(int argc, char *argv[])
 
 				f.close();
 			} else {
-				qWarning() << "Error opening source file." << f.errorString();
+				qWarning() << "Error opening source file." << QDir::toNativeSeparators(path) << f.errorString();
+			}
+
+			if (hasMultipleFiles) {
+				printf("\n");
 			}
 		}
 	}
