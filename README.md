@@ -6,8 +6,8 @@ Simple command-line tool to compress/decompress LZS files (mainly used in Final 
 Usage
 -----
 
-    lzs [-dhq] file
-    unlzs [-hq] file
+    lzs [-d] [-h] [-q] [-p offset] [-s size] [files...] [output directory]
+    unlzs [-h] [-q] [-p offset] [-s size] [files...] [output directory]
     Options
         -d --decompress --uncompress
             Decompress.

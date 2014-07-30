@@ -149,9 +149,9 @@ void Arguments::showHelp(int exitCode)
 {
 	QTextStream out(stdout, QIODevice::WriteOnly);
 #ifdef UNLZS
-	out << "unlzs [files...] [directory]\n";
+	out << "unlzs [files...] [output directory]\n";
 #else
-	out << "lzs [-d] [files...] [directory]\n";
+	out << "lzs [-d] [files...] [output directory]\n";
 #endif
 	out << "Options\n";
 
