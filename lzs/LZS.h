@@ -31,12 +31,10 @@
 class LZS
 {
 public:
-	static const QByteArray &decompress(const QByteArray &fileData, int max, LZSObserver *observer = NULL);
-	static const QByteArray &decompress(const char *data, int fileSize, int max, LZSObserver *observer = NULL);
-	static const QByteArray &decompressAll(const QByteArray &fileData, LZSObserver *observer = NULL);
-	static const QByteArray &decompressAll(const char *data, int fileSize, LZSObserver *observer = NULL);
-	static const QByteArray &compress(const QByteArray &fileData, LZSObserver *observer = NULL);
-	static const QByteArray &compress(const char *data, int sizeData, LZSObserver *observer = NULL);
+	static const QByteArray &decompressAll(const QByteArray &fileData, LZSObserver *observer = nullptr);
+	static const QByteArray &decompressAll(const char *data, int fileSize, LZSObserver *observer = nullptr);
+	static const QByteArray &compress(const QByteArray &fileData, LZSObserver *observer = nullptr);
+	static const QByteArray &compress(const char *data, int sizeData, LZSObserver *observer = nullptr);
 
 private:
 	static void InsertNode(qint32 r);

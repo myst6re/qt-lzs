@@ -17,25 +17,13 @@
 #include "LZSObserver.h"
 #include <stdio.h>
 
-LZSObserver::LZSObserver()
-{
-}
-
-LZSObserverPercent::LZSObserverPercent()
-{
-}
-
 void LZSObserverPercent::setValue(int value)
 {
-	int percent = value * 100.0 / (double)maximum();
+	int percent = int(qint64(value * 100) / maximum());
 	if (percent != _lastPercent) {
 		_lastPercent = percent;
 		setPercent(percent);
 	}
-}
-
-LZSObserverStdOut::LZSObserverStdOut()
-{
 }
 
 void LZSObserverStdOut::setPercent(int percent)
