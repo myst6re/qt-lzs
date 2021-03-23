@@ -26,12 +26,12 @@ int main(int argc, char *argv[])
 #endif
 
 	Arguments args;
-	quint32 lzsSize;
+	qint32 lzsSize = 0;
 	LZSObserver *observer;
 	LZSObserverStdOut stdObserver;
 
 	if (args.quiet()) {
-		observer = NULL;
+		observer = nullptr;
 	} else {
 		observer = &stdObserver;
 	}

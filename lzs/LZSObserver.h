@@ -22,7 +22,8 @@
 class LZSObserver
 {
 public:
-	LZSObserver();
+	inline LZSObserver() {}
+	inline virtual ~LZSObserver() {}
 
 	inline void setMaximum(int maximum) {
 		_maximum = maximum;
@@ -32,7 +33,7 @@ public:
 		return _maximum;
 	}
 
-	virtual void setValue(int value)=0;
+	virtual void setValue(int value) = 0;
 private:
 	int _maximum;
 };
@@ -40,9 +41,10 @@ private:
 class LZSObserverPercent : public LZSObserver
 {
 public:
-	LZSObserverPercent();
-	void setValue(int value);
-	virtual void setPercent(int percent)=0;
+	inline LZSObserverPercent() {}
+	inline virtual ~LZSObserverPercent() override {}
+	virtual void setValue(int value) override;
+	virtual void setPercent(int percent) = 0;
 private:
 	int _lastPercent;
 };
@@ -50,11 +52,12 @@ private:
 class LZSObserverStdOut : public LZSObserverPercent
 {
 public:
-	LZSObserverStdOut();
+	inline LZSObserverStdOut() {}
+	inline virtual ~LZSObserverStdOut() override {}
 	inline void setFilename(const QString &filename) {
 		_filename = filename;
 	}
-	virtual void setPercent(int percent);
+	virtual void setPercent(int percent) override;
 private:
 	QString _filename;
 };

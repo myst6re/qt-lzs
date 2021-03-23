@@ -32,76 +32,6 @@ qint32 LZS::dad[4097];
 unsigned char LZS::text_buf[4113];
 QByteArray LZS::result;
 
-const QByteArray &LZS::decompress(const QByteArray &data, int max, LZSObserver *observer)
-{
-	return decompress(data.constData(), data.size(), max, observer);
-}
-
-const QByteArray &LZS::decompress(const char *data, int fileSize, int max, LZSObserver *observer)
-{
-	int curResult = 0, sizeAlloc = max + 10;
-	quint16 curBuff = 4078, offset, flagByte = 0, i, length;
-	const quint8 *fileData = (const quint8 *)data,
-	        *endFileData = fileData + fileSize;
-
-	if (observer) {
-		observer->setMaximum(fileSize);
-	}
-
-	// Impossible case
-	if(quint64(sizeAlloc) > 2000 * quint64(fileSize)) {
-		qWarning() << "LZS::decompress impossible ratio case" << sizeAlloc << 2000 * quint64(fileSize);
-		result.clear();
-		return result;
-	}
-
-	// Reduce the amount of realloc
-	if (result.size() < sizeAlloc) {
-		try {
-			result.resize(sizeAlloc);
-		} catch(std::bad_alloc) {
-			result.clear();
-			return result;
-		}
-	}
-
-	memset(text_buf, 0, 4078); // The buffer of 4096 bytes is set to 0
-
-	forever {
-		if (((flagByte >>= 1) & 256) == 0) {
-			flagByte = *fileData++ | 0xff00; // First byte
-		}
-
-		if (observer) { // Output
-			observer->setValue(fileData - (const quint8 *)data);
-		}
-
-		if (fileData >= endFileData || curResult >= max) {
-			result.truncate(curResult);
-			return result; // Ending
-		}
-
-		if (flagByte & 1) {
-			// Uncompressed byte
-			result[curResult] = text_buf[curBuff] = *fileData++;
-			curBuff = (curBuff + 1) & 4095;
-			++curResult;
-		} else {
-			// Infos to retrieve uncompressed data
-			offset = *fileData++;
-			length = *fileData++;
-			offset |= (length & 0xF0) << 4;
-			length = (length & 0xF) + 2 + offset;
-
-			for (i = offset; i <= length; ++i) {
-				result[curResult] = text_buf[curBuff] = text_buf[i & 4095];
-				curBuff = (curBuff + 1) & 4095;
-				++curResult;
-			}
-		}
-	}
-}
-
 const QByteArray &LZS::decompressAll(const QByteArray &data, LZSObserver *observer)
 {
 	return decompressAll(data.constData(), data.size(), observer);
@@ -109,7 +39,7 @@ const QByteArray &LZS::decompressAll(const QByteArray &data, LZSObserver *observ
 
 const QByteArray &LZS::decompressAll(const char *data, int fileSize, LZSObserver *observer)
 {
-	int curResult = 0, sizeAlloc = fileSize * 5;
+	int curResult = 0, sizeAlloc = int(qMin(quint64(fileSize * 5), quint64(INT_MAX)));
 	quint16 curBuff = 4078, offset, flagByte = 0, i, length;
 	const quint8 *fileData = (const quint8 *)data,
 	        *endFileData = fileData + fileSize;
@@ -118,19 +48,12 @@ const QByteArray &LZS::decompressAll(const char *data, int fileSize, LZSObserver
 		observer->setMaximum(fileSize);
 	}
 
-	// Impossible case
-	if(sizeAlloc > 2000 * fileSize) {
-		result.clear();
-		return result;
-	}
-
 	// Reduce the amount of realloc
 	if (result.size() < sizeAlloc) {
 		try {
 			result.resize(sizeAlloc);
 		} catch(std::bad_alloc) {
-			result.clear();
-			return result;
+			// Ignore, try anyway
 		}
 	}
 
